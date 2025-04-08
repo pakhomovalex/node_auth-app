@@ -7,7 +7,6 @@ export async function sequelizeSync() {
     console.log('Connection has been established successfully.');
 
     await sequelize.sync();
-    console.log('Table created');
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }

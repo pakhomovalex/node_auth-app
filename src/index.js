@@ -7,6 +7,7 @@ import 'dotenv/config';
 import { router as authRouter } from './router/auth.router.js';
 import { userRouter } from './router/user.router.js';
 import { errorMiddleware } from './middleware/errorMiddleware.js';
+import cookieParser from 'cookie-parser';
 
 const PORT = process.env.PORT;
 
@@ -26,12 +27,12 @@ export function createServer() {
       credentials: true, // важно, если используешь withCredentials
     }),
   );
-
+  app.use(cookieParser());
   app.use(express.json()); // парсим JSON
 
   sequelizeSync(); // подключение к БД
 
-  app.use('', authRouter); // роутер авторизации
+  app.use(authRouter); // роутер авторизации
   app.use('/users', userRouter);
 
   app.use(errorMiddleware);

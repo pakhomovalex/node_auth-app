@@ -22,7 +22,30 @@ function verify(token) {
   }
 }
 
+function refreshSigh(user) {
+  try {
+    const token = jwt.sign(user, process.env.JWT_REFRESH_KEY, {
+      expiresIn: '5s',
+    });
+
+    return token;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
+function refreshVerify(token) {
+  try {
+    return jwt.verify(token, process.env.JWT_REFRESH_KEY);
+  } catch (e) {
+    return null;
+  }
+}
+
 export const jwtService = {
   sigh,
   verify,
+  refreshSigh,
+  refreshVerify,
 };
