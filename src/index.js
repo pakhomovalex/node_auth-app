@@ -33,7 +33,7 @@ export function createServer() {
   sequelizeSync(); // подключение к БД
 
   app.use(authRouter); // роутер авторизации
-  app.use('/users', userRouter);
+  app.use('/user', userRouter);
 
   app.use(errorMiddleware);
 

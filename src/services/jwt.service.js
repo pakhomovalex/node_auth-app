@@ -14,6 +14,19 @@ function sigh(user) {
   }
 }
 
+function resetPasswordToken(user) {
+  try {
+    const token = jwt.sign(user, process.env.JWT_RESET_KEY, {
+      expiresIn: '300s',
+    });
+
+    return token;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
 function verify(token) {
   try {
     return jwt.verify(token, process.env.JWT_KEY);
@@ -45,6 +58,7 @@ function refreshVerify(token) {
 
 export const jwtService = {
   sigh,
+  resetPasswordToken,
   verify,
   refreshSigh,
   refreshVerify,

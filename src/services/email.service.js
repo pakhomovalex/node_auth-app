@@ -35,7 +35,23 @@ const sendActivationEmail = (email, token) => {
   });
 }
 
-export const emailServeice = {
+const sendResetEmail = (email, resetToken) => {
+  const href = `${process.env.CLIENT_HOST}/resetpassword/${email}/${resetToken}`;
+
+  const html = `
+    <h1>Activation link</h1>
+    <a href=${href}>${href}</a>
+  `;
+
+  return send({
+    email,
+    subject: 'Reset password',
+    html,
+  });
+};
+
+export const emailService = {
   send,
   sendActivationEmail,
+  sendResetEmail,
 };

@@ -18,23 +18,20 @@ function validatePassword(value) {
 }
 
 const registration = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, name } = req.body;
 
   const errors = {
     email: validateEmail(email),
     password: validatePassword(password),
   }
 
-  if (errors.email || errors.password) {
+  if (errors.email || errors.password || !name) {
     throw ApiError.badRequest('Use correct values', errors);
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  console.log(hashedPassword);
-
-
-  const user = await userServices.registration(email, hashedPassword);
+  const user = await userServices.registration(email, hashedPassword, name);
 
   res.status(200).send(user);
 };
@@ -57,9 +54,6 @@ const activate = async (req, res) => {
 
 const login = async (req, res) => {
   const { email, password } = req.body;
-
-  console.log(email, password);
-
 
   const user = await userServices.findByEmail(email);
 
@@ -110,9 +104,15 @@ const generateTokens = async (res, user) => {
   })
 };
 
+const logout = async (req, res) => {
+  res.clearCookie('refreshToken');
+  res.sendStatus(204);
+};
+
 export const authControllers = {
   registration,
   activate,
   login,
   refresh,
+  logout,
 };
