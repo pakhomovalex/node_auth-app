@@ -1,7 +1,9 @@
 import { ApiError } from "../exceptions/api.error.js";
+import { ResetPasswordToken } from "../models/resetPasswordToken.js";
 import { emailService } from "../services/email.service.js";
 import { jwtService } from "../services/jwt.service.js";
 import { userServices } from "../services/user.services.js";
+import bcrypt from 'bcrypt';
 
 const getUser = async (req, res) => {
   const { refreshToken } = req.cookies;
@@ -54,8 +56,10 @@ const resetPasswordEmail = async (req, res) => {
 
   const resetToken = jwtService.resetPasswordToken(normilizedUser);
 
-  user.resetPasswordToken = resetToken;
-  await user.save();
+  await ResetPasswordToken.create({
+    resetPasswordToken: resetToken,
+    UserId: user.id,
+  })
 
   emailService.sendResetEmail(email, resetToken);
 
@@ -66,35 +70,25 @@ const resetPassword = async (req, res) => {
   const { email, resetPasswordToken } = req.params;
   const { newPassword } = req.body;
 
-  console.log(1);
-
-
   const user = await userServices.findByEmail(email);
-
-  console.log(2);
-  console.log(user);
-
-  console.log(user.resetPasswordToken, "USER TOKEN");
-  console.log(resetPasswordToken, "CLIENT TOKEN");
-
 
   if (!user) {
     throw ApiError.notFound('User not found');
   }
 
-  if (user.resetPasswordToken !== resetPasswordToken) {
-    res.status(400).send('Wrong access token');
-    return;
+  const tokenRecord = await ResetPasswordToken.findOne({
+    where: {
+      UserId: user.id,
+      resetPasswordToken: resetPasswordToken
+    }
+  });
+
+  if (!tokenRecord) {
+    return res.status(400).send('Invalid or expired token');
   }
 
-  console.log(3);
-
-  user.password = newPassword;
+  user.password = await bcrypt.hash(newPassword, 10);
   await user.save();
-
-
-  console.log(4);
-
 
   res.sendStatus(200);
 };
@@ -124,7 +118,7 @@ const changeEmail = async (req, res) => {
   await emailService.sendActivationEmail(newEmail, user.activationToken);
 
   const html = `Your email was changed on ${newEmail}`;
-  await emailService.send({ newEmail, subject: 'Email was changed', html});
+  await emailService.send({ newEmail, subject: 'Email was changed', html });
 
   res.sendStatus(200);
 };

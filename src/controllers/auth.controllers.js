@@ -71,19 +71,23 @@ const login = async (req, res) => {
 };
 
 const refresh = async (req, res) => {
-  const { refreshToken } = req.cookies;
+    const { refreshToken } = req.cookies;
 
-  const user = jwtService.refreshVerify(refreshToken);
+    if (!refreshToken) {
+      res.status(401).send('Unauthorized');
+    }
 
-  const token = tokenService.getByToken(refreshToken);
+    const user = jwtService.refreshVerify(refreshToken);
 
-  if (!user || !token) {
-    throw ApiError.unauthorized();
-  }
+    const token = tokenService.getByToken(refreshToken);
 
-  const data = await generateTokens(res, user);
+    if (!user || !token) {
+      throw ApiError.unauthorized();
+    }
 
-  res.status(200).send(data);
+    const data = await generateTokens(res, user);
+
+    res.status(200).send(data);
 };
 
 const generateTokens = async (res, user) => {
