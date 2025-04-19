@@ -10,5 +10,6 @@ userRouter.patch('/changepassword', catchError(usersControllers.changePassword))
 userRouter.post('/resetpassword', catchError(usersControllers.resetPasswordEmail));
 userRouter
   .patch('/resetpassword/:email/:resetPasswordToken', catchError(usersControllers.resetPassword));
-userRouter.patch('/changeemail/:oldEmail', catchError(usersControllers.changeEmail));
+userRouter.patch('/changeemailrequest/:oldEmail', catchError(usersControllers.changeEmail));
+userRouter.get('/changeemail/:newEmail/activationToken', catchError(usersControllers.activateNewEmail));
 

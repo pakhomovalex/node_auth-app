@@ -7,26 +7,26 @@ export class ApiError extends Error {
   }
 
   static badRequest(message, errors) {
-    return new ApiError ({
+    return new ApiError (
       message,
+      400,
       errors,
-      status: 400
-    })
+    )
   }
 
   static unauthorized(errors) {
-    return new ApiError({
-      message: 'Unauthorized user',
+    return new ApiError(
+      'Unauthorized user',
+      401,
       errors,
-      status: 401
-    });
+    );
   }
 
   static notFound(errors) {
-    return new ApiError({
-      message: 'Not found',
-      status: 404,
+    return new ApiError(
+      'Not found',
+      404,
       errors,
-    });
+    );
   }
 }

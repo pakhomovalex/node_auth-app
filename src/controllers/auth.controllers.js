@@ -36,7 +36,7 @@ const registration = async (req, res) => {
 
     res.status(200).send(user);
   } catch (error) {
-    res.status(500).send('Something wrong with registration', error)
+    res.status(500).send(`Something wrong with registration, ${error}`)
   }
 
 };
@@ -54,7 +54,7 @@ const activate = async (req, res) => {
   user.activationToken = null;
   await user.save();
 
-  res.send(user);
+  res.redirect('/user');
 };
 
 const login = async (req, res) => {
@@ -66,13 +66,14 @@ const login = async (req, res) => {
     throw ApiError.badRequest('User doues not exist');
   }
 
-  const isPasswordValid = bcrypt.compare(password, user.password);
+  const isPasswordValid = await bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {
     throw ApiError.badRequest('Wrong password');
   }
 
   await generateTokens(res, user);
+  res.redirect('/user');
 };
 
 const refresh = async (req, res) => {

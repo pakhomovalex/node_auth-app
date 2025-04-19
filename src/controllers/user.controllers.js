@@ -4,6 +4,7 @@ import { emailService } from "../services/email.service.js";
 import { jwtService } from "../services/jwt.service.js";
 import { userServices } from "../services/user.services.js";
 import bcrypt from 'bcrypt';
+import { User } from '../models/User.model.js';
 
 const getUser = async (req, res) => {
   const { refreshToken } = req.cookies;
@@ -37,7 +38,7 @@ const changePassword = async (req, res) => {
     throw ApiError.badRequest('Wrong password');
   }
 
-  user.password = bcrypt.hash(newPassword);
+  user.password = await bcrypt.hash(newPassword);
   await user.save();
 
   res.status(201).send(user);
@@ -103,26 +104,42 @@ const changeEmail = async (req, res) => {
     throw ApiError.notFound('User not found');
   }
 
-  const userPassword = bcrypt.compare(user.password);
+  const isPasswordValid = await bcrypt.compare(user.password, password);
 
-  if (userPassword !== password) {
+  if (!isPasswordValid) {
     res.status(400).send('Wrong password');
   }
 
-  const normilizedUser = userServices.normilize(user);
-
-  user.email = newEmail;
-  await user.save();
+  const normilizedUser = userServices.normilize({ ...user, email: newEmail });
 
   user.activationToken = jwtService.sigh(normilizedUser);
   await user.save();
 
   await emailService.sendActivationEmail(newEmail, user.activationToken);
 
+  res.sendStatus(200);
+};
+
+const activateNewEmail = async (req, res) => {
+  const { newEmail, activationToken } = req.params;
+
+  const user = await User.findOne({ where: { activationToken } });
+
+  if (!user) {
+    res.status(404).send('Cannot find user');
+    return;
+  }
+
+  user.email = newEmail;
+  await user.save();
+
   const html = `Your email was changed on ${newEmail}`;
   await emailService.send({ oldEmail, subject: 'Email was changed', html });
 
-  res.sendStatus(200);
+  user.activationToken = null;
+  await user.save();
+
+  res.redirect('/user');
 };
 
 export const usersControllers = {
@@ -132,4 +149,5 @@ export const usersControllers = {
   resetPasswordEmail,
   resetPassword,
   changeEmail,
+  activateNewEmail,
 };

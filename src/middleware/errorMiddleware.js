@@ -6,6 +6,7 @@ export const errorMiddleware = (error, req, res, next) => {
       message: error.message,
       error: error.errors,
     })
+    return;
   }
 
 

@@ -20,8 +20,7 @@ const send = async ({ email, subject, html }) => await transporter.sendMail({
 });
 
 const sendActivationEmail = (email, token) => {
-  const href = `${process.env.CLIENT_HOST}/activate/${email}/${token}`;
-  // const href = `http:/localhost:8080/activate/${email}/${token}`;
+  const href = `${process.env.CLIENT_HOST}/activate/${token}`;
 
   const html = `
     <h1>Activation link</h1>
