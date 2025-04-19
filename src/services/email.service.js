@@ -39,8 +39,11 @@ const sendResetEmail = (email, resetToken) => {
   const href = `${process.env.CLIENT_HOST}/resetpassword/${email}/${resetToken}`;
 
   const html = `
-    <h1>Activation link</h1>
-    <a href=${href}>${href}</a>
+    <h1>Reset password link</h1>
+    <a href=${href}>
+    Reset Password confirmation page (with password and confirmation fields that must be equal)
+    ${href}
+    </a>
   `;
 
   return send({

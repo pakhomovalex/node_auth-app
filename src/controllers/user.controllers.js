@@ -37,7 +37,7 @@ const changePassword = async (req, res) => {
     throw ApiError.badRequest('Wrong password');
   }
 
-  user.password = newPassword;
+  user.password = bcrypt.hash(newPassword);
   await user.save();
 
   res.status(201).send(user);
@@ -103,7 +103,9 @@ const changeEmail = async (req, res) => {
     throw ApiError.notFound('User not found');
   }
 
-  if (user.password !== password) {
+  const userPassword = bcrypt.compare(user.password);
+
+  if (userPassword !== password) {
     res.status(400).send('Wrong password');
   }
 
@@ -118,7 +120,7 @@ const changeEmail = async (req, res) => {
   await emailService.sendActivationEmail(newEmail, user.activationToken);
 
   const html = `Your email was changed on ${newEmail}`;
-  await emailService.send({ newEmail, subject: 'Email was changed', html });
+  await emailService.send({ oldEmail, subject: 'Email was changed', html });
 
   res.sendStatus(200);
 };

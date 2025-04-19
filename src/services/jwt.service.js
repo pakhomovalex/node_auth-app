@@ -4,7 +4,7 @@ import 'dotenv/config';
 function sigh(user) {
   try {
     const token = jwt.sign(user, process.env.JWT_KEY, {
-      expiresIn: '5s',
+      expiresIn: '1500s',
     });
 
     return token;
@@ -38,7 +38,7 @@ function verify(token) {
 function refreshSigh(user) {
   try {
     const token = jwt.sign(user, process.env.JWT_REFRESH_KEY, {
-      expiresIn: '5s',
+      expiresIn: '30d',
     });
 
     return token;

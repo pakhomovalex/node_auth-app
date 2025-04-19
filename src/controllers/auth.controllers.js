@@ -29,11 +29,16 @@ const registration = async (req, res) => {
     throw ApiError.badRequest('Use correct values', errors);
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-  const user = await userServices.registration(email, hashedPassword, name);
+    const user = await userServices.registration(email, hashedPassword, name);
 
-  res.status(200).send(user);
+    res.status(200).send(user);
+  } catch (error) {
+    res.status(500).send('Something wrong with registration', error)
+  }
+
 };
 
 const activate = async (req, res) => {
@@ -71,23 +76,23 @@ const login = async (req, res) => {
 };
 
 const refresh = async (req, res) => {
-    const { refreshToken } = req.cookies;
+  const { refreshToken } = req.cookies;
 
-    if (!refreshToken) {
-      res.status(401).send('Unauthorized');
-    }
+  if (!refreshToken) {
+    res.status(401).send('Unauthorized');
+  }
 
-    const user = jwtService.refreshVerify(refreshToken);
+  const user = jwtService.refreshVerify(refreshToken);
 
-    const token = tokenService.getByToken(refreshToken);
+  const token = tokenService.getByToken(refreshToken);
 
-    if (!user || !token) {
-      throw ApiError.unauthorized();
-    }
+  if (!user || !token) {
+    throw ApiError.unauthorized();
+  }
 
-    const data = await generateTokens(res, user);
+  const data = await generateTokens(res, user);
 
-    res.status(200).send(data);
+  res.status(200).send(data);
 };
 
 const generateTokens = async (res, user) => {

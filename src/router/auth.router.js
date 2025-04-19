@@ -5,7 +5,7 @@ import { catchError } from '../catchError.js';
 export const router = new express.Router();
 
 router.post('/registration', catchError(authControllers.registration));
-router.get('/activate/:email/:activationToken', catchError(authControllers.activate));
+router.get('/activate/:activationToken', catchError(authControllers.activate));
 router.post('/login', catchError(authControllers.login));
 router.get('/refresh', catchError(authControllers.refresh));
 router.post('/logout', catchError(authControllers.logout));
